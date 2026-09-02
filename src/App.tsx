@@ -28,7 +28,8 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [companies, setCompanies] = useState<any[]>([]);
   const [activeCompany, setActiveCompany] = useState<any>(null);
-  const [activeNav, setActiveNav] = useState<'taller' | 'usuarios' | 'swagger' | 'notificaciones' | 'multimedia' | 'pruebas'>('taller');
+  type NavId = 'taller' | 'usuarios' | 'swagger' | 'notificaciones' | 'multimedia' | 'pruebas';
+  const [activeNav, setActiveNav] = useState<NavId>('taller');
   const [loading, setLoading] = useState(false);
 
   // Hooks deben invocarse SIEMPRE en el mismo orden y antes de cualquier
@@ -132,7 +133,7 @@ export default function App() {
   // Definición maestra de los módulos de navegación. El filtro por permisos
   // se aplica al renderizar: ADMIN ve todo, los demás roles solo lo que su
   // matriz de permisos autorice.
-  const navItems = [
+  const navItems: { id: NavId; label: string; icon: any; module: any; requires: any }[] = [
     { id: 'taller', label: 'Taller San Luis', icon: Wrench, module: 'taller' as const, requires: 'read' as const },
     { id: 'usuarios', label: 'Gestión Usuarios (RBAC)', icon: Users, module: 'users' as const, requires: 'read' as const },
     { id: 'swagger', label: 'Swagger API Explorer', icon: BookOpen, module: 'swagger' as const, requires: 'read' as const },
@@ -154,9 +155,9 @@ export default function App() {
     !filteredNav.some((n) => n.id === activeNav) &&
     filteredNav.length > 0
   ) {
-    const fallback = filteredNav.find((n) => n.id === 'taller') ? 'taller' : (filteredNav[0]?.id as typeof activeNav);
+    const fallback = filteredNav.find((n) => n.id === 'taller') ? 'taller' : filteredNav[0]?.id;
     if (fallback) {
-      setActiveNav(fallback as typeof activeNav);
+      setActiveNav(fallback);
     }
   }
 

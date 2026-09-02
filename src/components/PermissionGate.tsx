@@ -106,11 +106,16 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
       <>
           {React.Children.map(children, (child) => {
             if (!React.isValidElement(child)) return child;
+            // `React.isValidElement` estrecha a `React.ReactElement<unknown>` en
+            // versiones recientes de @types/react, por lo que `child.props.style`
+            // deja de ser visible para tsc. Casteamos explícitamente para
+            // permitir la lectura y el spread del `style` original.
+            const el = child as React.ReactElement<any>;
             const isFormField =
-              child.type === 'input' ||
-              child.type === 'select' ||
-              child.type === 'textarea';
-            const isButton = child.type === 'button';
+              el.type === 'input' ||
+              el.type === 'select' ||
+              el.type === 'textarea';
+            const isButton = el.type === 'button';
 
             const newProps: any = {};
             if (isFormField) {
@@ -122,15 +127,15 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
               newProps.disabled = true;
               newProps['aria-disabled'] = true;
               newProps.style = {
-                ...(child.props.style || {}),
+                ...(el.props.style || {}),
                 opacity: 0.55,
                 cursor: 'not-allowed',
               };
               newProps.title = message || 'Acción no permitida para su rol';
             } else {
-              newProps.style = { ...(child.props.style || {}), pointerEvents: 'none', opacity: 0.7 };
+              newProps.style = { ...(el.props.style || {}), pointerEvents: 'none', opacity: 0.7 };
             }
-            return React.cloneElement(child, newProps);
+            return React.cloneElement(el, newProps);
           })}
         </>
     );
