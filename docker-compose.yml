@@ -11,12 +11,8 @@ services:
     ports:
       - "4100:4100"
     environment:
-<<<<<<< HEAD
-      - PORT=4100
-=======
       - PORT=4000
       - FRONTEND_PORT=4100
->>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
       - NODE_ENV=production
       - JWT_SECRET=development-secret-keys-for-sanluis-app-2026
       - JWT_PREAUTH_SECRET=development-preauth-secret-keys-for-sanluis-app-2026

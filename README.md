@@ -147,16 +147,10 @@ POST /api/v1/system/run-tests
 
 ## 📚 Documentación interactiva
 
-<<<<<<< HEAD
-- Swagger UI: http://localhost:3000/api-docs
-- JSON OpenAPI: http://localhost:3000/api-docs-json
-- Endpoints: [ENDPOINTS.md](./ENDPOINTS.md)
-=======
 Una vez iniciado el servidor, acceda a la documentación visual interactiva:
 - **Swagger UI:** `http://localhost:4000/api-docs`
 - **JSON OpenAPI 3.0:** `http://localhost:4000/api-docs-json`
 - **Catálogo Markdown:** Consulte el archivo [`ENDPOINTS.md`](./ENDPOINTS.md).
->>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
 
 ---
 

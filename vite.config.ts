@@ -12,15 +12,6 @@ export default defineConfig(() => {
       },
     },
     server: {
-<<<<<<< HEAD
-      host: '0.0.0.0',
-      port: 4173,
-      strictPort: true,
-      hmr: {
-        host: 'localhost',
-        port: 24760,
-      },
-=======
       // Puerto del frontend (Vite dev server) - debe coincidir con package.json y server.ts.
       port: Number(process.env.FRONTEND_PORT) || 4100,
       strictPort: true,
@@ -28,7 +19,6 @@ export default defineConfig(() => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
->>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
