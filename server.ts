@@ -23,7 +23,15 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
+<<<<<<< HEAD
   const basePort = Number(process.env.PORT || 3000);
+=======
+  // Puerto del backend API. Puede ser sobreescrito por la variable de entorno PORT.
+  // Default: 4000 (alineado con docker-compose.yml y .env.example)
+  const PORT = Number(process.env.PORT) || 4000;
+  // Puerto del frontend Vite en modo desarrollo (HMR). Debe coincidir con vite.config.ts.
+  const FRONTEND_PORT = Number(process.env.FRONTEND_PORT) || 4100;
+>>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
   const isProduction = process.env.NODE_ENV === 'production';
 
   // Configurar trust proxy para proxies inversos (Cloud Run / Nginx / Vite)
