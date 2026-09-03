@@ -6,3 +6,16 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Bases de datos SQLite generadas localmente (tests, dev, seed)
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-shm
+data/*.sqlite-wal
+
+# Configuración local del editor
+.vscode/
+
+# Scripts temporales de prueba (smoke tests del bridge, etc.)
+bridge-probe.cjs
+backend-probe.cjs

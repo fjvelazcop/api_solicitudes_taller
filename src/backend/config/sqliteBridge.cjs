@@ -1,12 +1,59 @@
-const { DatabaseSync } = require('node:sqlite');
+/**
+ * sqliteBridge.cjs
+ *
+ * Shim que expone una API compatible con `sqlite3` para que Sequelize
+ * pueda utilizarla como `dialectModule` en cualquier versión de Node.js.
+ *
+ * Estrategia:
+ *  1. Si `node:sqlite` está disponible (Node >= 22.5 con --experimental-sqlite
+ *     o Node >= 23), se usa la implementación nativa (más rápida).
+ *  2. Si NO está disponible (por ejemplo Node 20.x como en CI), se usa el
+ *     paquete npm `sqlite3` (ya declarado en package.json).
+ *
+ * De este modo el proyecto es compatible con:
+ *   - Node 20.x  → sqlite3 (npm)
+ *   - Node 22.x  → node:sqlite (si está habilitado) o sqlite3 (fallback)
+ *   - Node 23+   → node:sqlite
+ */
+
+'use strict';
+
 const EventEmitter = require('events');
 
+// --- Detección del backend disponible ------------------------------
+let backend = null; // 'native' | 'npm'
+
+let nativeSqlite = null;
+try {
+  // Solo disponible en Node >= 22.5 (experimental) o Node >= 23 (estable)
+  nativeSqlite = require('node:sqlite');
+  backend = 'native';
+} catch (_) {
+  backend = null;
+}
+
+let sqlite3 = null;
+if (!backend) {
+  try {
+    sqlite3 = require('sqlite3');
+    backend = 'npm';
+  } catch (err) {
+    throw new Error(
+      '[sqliteBridge] No se pudo cargar `node:sqlite` ni el paquete `sqlite3`. ' +
+        'Asegúrate de que `sqlite3` esté instalado (npm install) o usa Node >= 22.5 con --experimental-sqlite.'
+    );
+  }
+}
+
+console.log(`[sqliteBridge] Backend SQLite activo: ${backend}`);
+
+// --- Helpers comunes ----------------------------------------------
 function sanitizeValue(val) {
   if (val === undefined || val === null) return null;
   if (typeof val === 'boolean') return val ? 1 : 0;
   if (val instanceof Date) return val.toISOString();
   if (typeof val === 'bigint') return Number(val);
-  if (typeof val === 'object' && !(val instanceof Uint8Array || Buffer.isBuffer(val))) {
+  if (typeof val === 'object' && !(val instanceof Uint8Array) && !Buffer.isBuffer(val)) {
     return JSON.stringify(val);
   }
   return val;
@@ -16,7 +63,7 @@ function normalizeParams(sql, params) {
   if (!params) return { sql, params: [] };
 
   if (Array.isArray(params)) {
-    let normalizedSql = sql.replace(/\$(\d+)/g, '?');
+    const normalizedSql = sql.replace(/\$(\d+)/g, '?');
     const sanitized = params.map(sanitizeValue);
     return { sql: normalizedSql, params: sanitized };
   } else if (typeof params === 'object') {
@@ -29,7 +76,22 @@ function normalizeParams(sql, params) {
   return { sql, params: [sanitizeValue(params)] };
 }
 
-class Database extends EventEmitter {
+// --- Wrapper sobre `sqlite3` (npm) --------------------------------
+function createNpmDatabase(filename, mode, callback) {
+  if (typeof mode === 'function') {
+    callback = mode;
+    mode = null;
+  }
+  return new sqlite3.Database(
+    filename === ':memory:' ? ':memory:' : filename || ':memory:',
+    (err) => {
+      if (callback) callback(err);
+    }
+  );
+}
+
+// --- Wrapper sobre `node:sqlite` (nativo) -------------------------
+class NativeDatabase extends EventEmitter {
   constructor(filename, mode, callback) {
     super();
     if (typeof mode === 'function') {
@@ -37,7 +99,9 @@ class Database extends EventEmitter {
       mode = null;
     }
     try {
-      this.db = new DatabaseSync(filename === ':memory:' ? ':memory:' : (filename || ':memory:'));
+      this.db = new nativeSqlite.DatabaseSync(
+        filename === ':memory:' ? ':memory:' : filename || ':memory:'
+      );
       process.nextTick(() => {
         if (callback) callback(null);
         this.emit('open');
@@ -52,9 +116,7 @@ class Database extends EventEmitter {
 
   close(callback) {
     try {
-      if (this.db) {
-        this.db.close();
-      }
+      if (this.db) this.db.close();
       if (callback) callback(null);
       this.emit('close');
     } catch (err) {
@@ -164,10 +226,22 @@ class Database extends EventEmitter {
   }
 }
 
+// --- Selección del Database expuesto -------------------------------
+let Database;
+if (backend === 'native') {
+  Database = NativeDatabase;
+} else {
+  Database = function (filename, mode, callback) {
+    return createNpmDatabase(filename, mode, callback);
+  };
+}
+
 module.exports = {
   Database,
   OPEN_READONLY: 1,
   OPEN_READWRITE: 2,
   OPEN_CREATE: 4,
   verbose: () => module.exports,
+  // Útil para diagnóstico
+  __backend: backend,
 };
