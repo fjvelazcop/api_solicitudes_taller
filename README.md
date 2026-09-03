@@ -54,14 +54,9 @@ Esta versión ya incorpora la sincronización maestra bidireccional entre la bas
 - Acceso a Microsoft SQL Server del entorno Profit cuando se desea usar el modo real
 - SQLite disponible para modo local/fallback
 
-<<<<<<< HEAD
----
-
-## ▶️ Puesta en marcha
-
-### 1. Instalar dependencias
-=======
 Variables clave configuradas:
+- `PORT=4000` (Backend Express)
+- `FRONTEND_PORT=4100` (Vite dev server)
 - `PORT=4000` (Backend Express)
 - `FRONTEND_PORT=4100` (Vite dev server)
 - `DB_DIALECT=mssql` (o `sqlite` para pruebas locales)
@@ -73,7 +68,6 @@ Variables clave configuradas:
 - `JWT_SECRET=development-secret-keys-for-sanluis-app-2026`
 - `JWT_PREAUTH_SECRET=development-preauth-secret-keys-for-sanluis-app-2026`
 - `STORAGE_DRIVER=local` (o `s3` para almacenamiento en la nube)
->>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
 
 ```bash
 npm install
@@ -84,10 +78,8 @@ npm install
 ```bash
 npm run dev
 ```
-<<<<<<< HEAD
-=======
 El servidor backend arrancará en **http://localhost:4000** y el frontend Vite (con HMR y proxy automático a la API) en **http://localhost:4100**. Recarga en vivo mediante `tsx`.
->>>>>>> 6c08857 (feat: actualizar configuración de puertos y scripts de inicio para backend y frontend)
+El servidor backend arrancará en **http://localhost:4000** y el frontend Vite (con HMR y proxy automático a la API) en **http://localhost:4100**. Recarga en vivo mediante `tsx`.
 
 El backend arranca normalmente con el puerto base 3000 y, si ese puerto está ocupado, prueba el siguiente disponible. El HMR del frontend queda configurado en un puerto libre permanente para evitar conflictos de WebSocket.
 
@@ -148,6 +140,8 @@ POST /api/v1/system/run-tests
 ## 📚 Documentación interactiva
 
 Una vez iniciado el servidor, acceda a la documentación visual interactiva:
+- **Swagger UI:** `http://localhost:4000/api-docs`
+- **JSON OpenAPI 3.0:** `http://localhost:4000/api-docs-json`
 - **Swagger UI:** `http://localhost:4000/api-docs`
 - **JSON OpenAPI 3.0:** `http://localhost:4000/api-docs-json`
 - **Catálogo Markdown:** Consulte el archivo [`ENDPOINTS.md`](./ENDPOINTS.md).
